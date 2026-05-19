@@ -261,9 +261,75 @@
         }
       }
     </style>
+
+    <!-- ============ Black-hole intro: pinned canvas, scroll-driven ============ -->
+    <style>
+      #bh-scene {
+        position: fixed; top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        display: block;
+        z-index: 2;
+        pointer-events: none;
+        background: #040409;
+        transition: opacity 0.45s ease;
+        will-change: opacity, transform;
+      }
+      #bh-vignette {
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 3;
+        background:
+          radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.55) 100%),
+          radial-gradient(ellipse at center, transparent 65%, rgba(10,5,15,0.55) 100%);
+        transition: opacity 0.45s ease;
+      }
+      .bh-hint {
+        position: fixed;
+        left: 50%;
+        bottom: 28px;
+        transform: translateX(-50%);
+        z-index: 11;
+        pointer-events: none;
+        font-family: 'Geist', 'Plus Jakarta Sans', system-ui, sans-serif;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.55);
+        display: flex; align-items: center; gap: 12px;
+        transition: opacity 0.4s ease;
+      }
+      .bh-hint .pulse {
+        display: inline-block;
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #d97706;
+        box-shadow: 0 0 12px rgba(217,119,6,0.7);
+        animation: bhPulse 1.6s ease-in-out infinite;
+      }
+      .bh-hint .arrow {
+        color: #d97706;
+        animation: bhNudge 1.6s ease-in-out infinite;
+      }
+      @keyframes bhPulse {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50%      { opacity: 1;   transform: scale(1.35); }
+      }
+      @keyframes bhNudge {
+        0%, 100% { transform: translateY(0);  opacity: 0.55; }
+        50%      { transform: translateY(4px); opacity: 1;    }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .bh-hint .pulse, .bh-hint .arrow { animation: none; }
+      }
+    </style>
   </head>
 
   <body class="relative min-h-[100dvh] overflow-x-hidden bg-ink-950 text-white antialiased selection:bg-jade-500/30 selection:text-white">
+    <canvas id="bh-scene" aria-hidden="true"></canvas>
+    <div id="bh-vignette" aria-hidden="true"></div>
+    <div class="bh-hint" id="bh-hint" aria-hidden="true">
+      <span class="pulse"></span>Scroll to enter<span class="arrow">↓</span>
+    </div>
+
     <!-- Background field -->
     <div class="mesh-bg" aria-hidden="true"></div>
     <div class="grain" aria-hidden="true"></div>
@@ -1155,6 +1221,396 @@
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') setMenu(false);
       });
+    </script>
+
+    <!-- ============ Black-hole intro: Three.js scene, scroll-driven ============ -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+    </script>
+    <script type="module">
+      function hasWebGL() {
+        try {
+          const c = document.createElement('canvas');
+          return !!(window.WebGLRenderingContext &&
+            (c.getContext('webgl') || c.getContext('experimental-webgl')));
+        } catch (e) { return false; }
+      }
+      const canvas   = document.getElementById('bh-scene');
+      const vignette = document.getElementById('bh-vignette');
+      const hint     = document.getElementById('bh-hint');
+      const fadeEl   = document.getElementById('capabilities');
+
+      if (!hasWebGL() || !canvas || !fadeEl) {
+        if (canvas)   canvas.style.display = 'none';
+        if (vignette) vignette.style.display = 'none';
+        if (hint)     hint.style.display = 'none';
+      } else {
+        let THREE;
+        try {
+          THREE = await import('three');
+        } catch (e) {
+          console.warn('Three.js failed to load — skipping intro.', e);
+          canvas.style.display = 'none';
+          vignette.style.display = 'none';
+          hint.style.display = 'none';
+        }
+
+        if (THREE) runIntro(THREE);
+
+        function runIntro(THREE) {
+          const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.toneMapping = THREE.ACESFilmicToneMapping;
+          renderer.toneMappingExposure = 1.05;
+
+          const scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x040409);
+          scene.fog = new THREE.FogExp2(0x040409, 0.006);
+
+          const camera = new THREE.PerspectiveCamera(
+            48, window.innerWidth / window.innerHeight, 0.1, 800
+          );
+          const camStart = new THREE.Vector3(0, 18, 62);
+          const camEnd   = new THREE.Vector3(0, 7.5, 30);
+          camera.position.copy(camStart);
+          camera.lookAt(0, 0, 0);
+
+          function makeDotTexture() {
+            const size = 64;
+            const c = document.createElement('canvas');
+            c.width = c.height = size;
+            const ctx = c.getContext('2d');
+            const g = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+            g.addColorStop(0,    'rgba(255,255,255,1)');
+            g.addColorStop(0.35, 'rgba(255,255,255,0.55)');
+            g.addColorStop(1,    'rgba(255,255,255,0)');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, size, size);
+            const tex = new THREE.CanvasTexture(c);
+            tex.needsUpdate = true;
+            return tex;
+          }
+          const dotTex = makeDotTexture();
+
+          function buildStars(count, radius) {
+            const geo = new THREE.BufferGeometry();
+            const pos = new Float32Array(count * 3);
+            const col = new Float32Array(count * 3);
+            const tmp = new THREE.Color();
+            for (let i = 0; i < count; i++) {
+              const r = radius * (0.55 + Math.random() * 0.45);
+              const theta = Math.random() * Math.PI * 2;
+              const phi = Math.acos(2 * Math.random() - 1);
+              pos[i*3+0] = r * Math.sin(phi) * Math.cos(theta);
+              pos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
+              pos[i*3+2] = r * Math.cos(phi);
+              if (Math.random() < 0.08) {
+                tmp.setHSL(0.08, 0.6, 0.55 + Math.random() * 0.3);
+              } else {
+                tmp.setHSL(0.6 + Math.random() * 0.1, 0.05, 0.6 + Math.random() * 0.4);
+              }
+              col[i*3+0] = tmp.r; col[i*3+1] = tmp.g; col[i*3+2] = tmp.b;
+            }
+            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            return geo;
+          }
+          const stars = new THREE.Points(
+            buildStars(2200, 320),
+            new THREE.PointsMaterial({
+              size: 1.2, map: dotTex, vertexColors: true,
+              transparent: true, depthWrite: false,
+              blending: THREE.AdditiveBlending,
+            })
+          );
+          scene.add(stars);
+
+          const horizonR = 3.0;
+          scene.add(new THREE.Mesh(
+            new THREE.SphereGeometry(horizonR, 64, 64),
+            new THREE.MeshBasicMaterial({ color: 0x000000 })
+          ));
+
+          scene.add(new THREE.Mesh(
+            new THREE.SphereGeometry(horizonR * 1.12, 64, 64),
+            new THREE.ShaderMaterial({
+              uniforms: { uColor: { value: new THREE.Color(0x3a1f4d) } },
+              vertexShader: `
+                varying vec3 vNormal; varying vec3 vView;
+                void main(){
+                  vNormal = normalize(normalMatrix * normal);
+                  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                  vView = normalize(-mv.xyz);
+                  gl_Position = projectionMatrix * mv;
+                }`,
+              fragmentShader: `
+                uniform vec3 uColor;
+                varying vec3 vNormal; varying vec3 vView;
+                void main(){
+                  float f = pow(1.0 - max(dot(vNormal, vView), 0.0), 3.2);
+                  gl_FragColor = vec4(uColor * f * 1.4, f * 0.9);
+                }`,
+              transparent: true, blending: THREE.AdditiveBlending,
+              depthWrite: false, side: THREE.BackSide,
+            })
+          ));
+
+          const photonRing = new THREE.Mesh(
+            new THREE.TorusGeometry(horizonR * 1.13, 0.14, 24, 220),
+            new THREE.MeshBasicMaterial({
+              color: 0xffe1a8, transparent: true, opacity: 0.95,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+            })
+          );
+          photonRing.rotation.x = Math.PI / 2;
+          scene.add(photonRing);
+
+          const haloRing = new THREE.Mesh(
+            new THREE.TorusGeometry(horizonR * 1.22, 0.42, 24, 220),
+            new THREE.MeshBasicMaterial({
+              color: 0xd97706, transparent: true, opacity: 0.35,
+              blending: THREE.AdditiveBlending, depthWrite: false,
+            })
+          );
+          haloRing.rotation.x = Math.PI / 2;
+          scene.add(haloRing);
+
+          const DISK_COUNT = 5500;
+          const diskGeo = new THREE.BufferGeometry();
+          const diskPos = new Float32Array(DISK_COUNT * 3);
+          const diskCol = new Float32Array(DISK_COUNT * 3);
+          const diskR = new Float32Array(DISK_COUNT);
+          const diskA = new Float32Array(DISK_COUNT);
+          const diskOmega = new Float32Array(DISK_COUNT);
+          const INNER_R = horizonR * 1.25;
+          const OUTER_R = 14.5;
+          for (let i = 0; i < DISK_COUNT; i++) {
+            const t = Math.pow(Math.random(), 1.8);
+            const r = INNER_R + t * (OUTER_R - INNER_R);
+            const a = Math.random() * Math.PI * 2;
+            const thickness = 0.15 + (1 - t) * 0.05 + t * 0.6;
+            const y = (Math.random() - 0.5) * thickness;
+            diskR[i] = r; diskA[i] = a;
+            diskOmega[i] = 1.6 / Math.sqrt(r);
+            diskPos[i*3+0] = Math.cos(a) * r;
+            diskPos[i*3+1] = y;
+            diskPos[i*3+2] = Math.sin(a) * r;
+            let cr, cg, cb;
+            if (t < 0.10) { cr = 1.0; cg = 0.96; cb = 0.85; }
+            else if (t < 0.32) { const k = (t - 0.10) / 0.22; cr = 1.0; cg = 0.85 - k*0.25; cb = 0.55 - k*0.35; }
+            else if (t < 0.65) { const k = (t - 0.32) / 0.33; cr = 0.95 - k*0.15; cg = 0.50 - k*0.20; cb = 0.18 - k*0.05; }
+            else { const k = (t - 0.65) / 0.35; cr = 0.70 - k*0.30; cg = 0.25 - k*0.15; cb = 0.10 - k*0.05; }
+            const intensity = 0.55 + Math.random() * 0.55;
+            diskCol[i*3+0] = cr * intensity;
+            diskCol[i*3+1] = cg * intensity;
+            diskCol[i*3+2] = cb * intensity;
+          }
+          diskGeo.setAttribute('position', new THREE.BufferAttribute(diskPos, 3));
+          diskGeo.setAttribute('color',    new THREE.BufferAttribute(diskCol, 3));
+          const disk = new THREE.Points(diskGeo, new THREE.PointsMaterial({
+            size: 0.34, map: dotTex, vertexColors: true,
+            transparent: true, depthWrite: false,
+            blending: THREE.AdditiveBlending, sizeAttenuation: true,
+          }));
+          scene.add(disk);
+
+          function makeBugTexture(variant) {
+            const size = 128;
+            const c = document.createElement('canvas');
+            c.width = c.height = size;
+            const ctx = c.getContext('2d');
+            ctx.translate(size/2, size/2);
+            const bodyColor = variant === 0 ? '#1a1a24' : variant === 1 ? '#2a1810' : '#1d0f14';
+            const accent    = variant === 0 ? '#d97706' : variant === 1 ? '#d4a72c' : '#b87333';
+            ctx.strokeStyle = bodyColor; ctx.lineWidth = 4; ctx.lineCap = 'round';
+            for (const y of [-14, 4, 22]) {
+              ctx.beginPath(); ctx.moveTo(-13, y); ctx.quadraticCurveTo(-32, y-4, -42, y+14); ctx.stroke();
+              ctx.beginPath(); ctx.moveTo( 13, y); ctx.quadraticCurveTo( 32, y-4,  42, y+14); ctx.stroke();
+            }
+            ctx.fillStyle = bodyColor;
+            ctx.beginPath(); ctx.ellipse(0, 6, 20, 30, 0, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = accent; ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.moveTo(0, -18); ctx.lineTo(0, 32); ctx.stroke();
+            if (variant === 1) {
+              ctx.fillStyle = accent;
+              for (const [x, y] of [[-8,6],[8,6],[-8,18],[8,18]]) {
+                ctx.beginPath(); ctx.arc(x, y, 2.4, 0, Math.PI*2); ctx.fill();
+              }
+            }
+            ctx.fillStyle = bodyColor;
+            ctx.beginPath(); ctx.arc(0, -22, 12, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = accent;
+            ctx.beginPath(); ctx.arc(-4.5, -24, 2.3, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc( 4.5, -24, 2.3, 0, Math.PI*2); ctx.fill();
+            ctx.strokeStyle = bodyColor; ctx.lineWidth = 2.6;
+            ctx.beginPath(); ctx.moveTo(-5, -30); ctx.quadraticCurveTo(-14, -44, -19, -54); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo( 5, -30); ctx.quadraticCurveTo( 14, -44,  19, -54); ctx.stroke();
+            ctx.fillStyle = accent;
+            ctx.beginPath(); ctx.arc(-19, -54, 2.6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc( 19, -54, 2.6, 0, Math.PI*2); ctx.fill();
+            const tex = new THREE.CanvasTexture(c); tex.needsUpdate = true;
+            tex.anisotropy = 4;
+            return tex;
+          }
+          const bugTextures = [makeBugTexture(0), makeBugTexture(1), makeBugTexture(2)];
+
+          const BUG_COUNT = 26;
+          class Bug {
+            constructor() {
+              const tex = bugTextures[Math.floor(Math.random() * bugTextures.length)];
+              this.sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: tex, transparent: true, depthWrite: false,
+              }));
+              this.reset(true);
+              scene.add(this.sprite);
+            }
+            reset(initial) {
+              this.startR = 22 + Math.random() * 20;
+              this.theta = Math.random() * Math.PI * 2;
+              this.totalLife = 5.5 + Math.random() * 3.0;
+              this.life = initial
+                ? -Math.random() * this.totalLife
+                : -Math.random() * 2.5;
+              this.baseSize = 1.4 + Math.random() * 1.1;
+              this.yOff = (Math.random() - 0.5) * 4;
+              this.spriteRot = Math.random() * Math.PI * 2;
+              this.spriteSpin = (Math.random() - 0.5) * 2.4;
+              this.sprite.material.opacity = 0;
+            }
+            update(dt) {
+              this.life += dt;
+              if (this.life < 0) { this.sprite.visible = false; return; }
+              if (this.life >= this.totalLife) { this.reset(false); return; }
+              this.sprite.visible = true;
+              const t = this.life / this.totalLife;
+              const eased = 1 - Math.pow(1 - t, 2.8);
+              const r = this.startR * (1 - eased) + (horizonR * 0.9) * eased;
+              this.theta += dt * (0.35 + 5.5 * eased);
+              const x = Math.cos(this.theta) * r;
+              const z = Math.sin(this.theta) * r;
+              const y = this.yOff * (1 - eased * 0.85);
+              this.sprite.position.set(x, y, z);
+              const s = this.baseSize * (1.0 - eased * 0.7);
+              this.sprite.scale.set(s, s, 1);
+              this.spriteRot += dt * this.spriteSpin * (1 + eased * 5);
+              this.sprite.material.rotation = this.spriteRot;
+              let op;
+              if (t < 0.08)      op = t / 0.08;
+              else if (t > 0.88) op = Math.max(0, (1 - t) / 0.12);
+              else               op = 1;
+              this.sprite.material.opacity = op;
+            }
+          }
+          const bugs = [];
+          for (let i = 0; i < BUG_COUNT; i++) bugs.push(new Bug());
+
+          function updateDisk(dt) {
+            const arr = diskGeo.attributes.position.array;
+            for (let i = 0; i < DISK_COUNT; i++) {
+              diskA[i] += diskOmega[i] * dt;
+              const r = diskR[i], a = diskA[i];
+              arr[i*3+0] = Math.cos(a) * r;
+              arr[i*3+2] = Math.sin(a) * r;
+            }
+            diskGeo.attributes.position.needsUpdate = true;
+          }
+
+          let scrollProgress = 0;
+          let scrollProgressRaw = 0;
+          let fadeTop = fadeEl.getBoundingClientRect().top + window.scrollY;
+          function recalcFadeTop() {
+            fadeTop = fadeEl.getBoundingClientRect().top + window.scrollY;
+            computeScrollProgress();
+          }
+          function computeScrollProgress() {
+            const range = Math.max(1, fadeTop * 0.7);
+            scrollProgressRaw = Math.min(1, Math.max(0, window.scrollY / range));
+          }
+          computeScrollProgress();
+          window.addEventListener('scroll', computeScrollProgress, { passive: true });
+          window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            recalcFadeTop();
+          });
+          window.addEventListener('load', recalcFadeTop);
+          setTimeout(recalcFadeTop, 500);
+          setTimeout(recalcFadeTop, 1500);
+
+          const clock = new THREE.Clock();
+          const DIVE_START = 0.78;
+          const lerp = (a, b, t) => a + (b - a) * t;
+          let paused = false;
+
+          function loop() {
+            requestAnimationFrame(loop);
+            if (scrollProgressRaw >= 1 && scrollProgress >= 0.995) {
+              if (!paused) {
+                canvas.style.opacity = '0';
+                vignette.style.opacity = '0';
+                hint.style.opacity = '0';
+                paused = true;
+              }
+              return;
+            } else if (paused) {
+              canvas.style.opacity = '';
+              vignette.style.opacity = '';
+              paused = false;
+            }
+
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const elapsed = clock.elapsedTime;
+
+            updateDisk(dt);
+            for (const b of bugs) b.update(dt);
+            stars.rotation.y += dt * 0.006;
+            stars.rotation.x += dt * 0.002;
+
+            scrollProgress += (scrollProgressRaw - scrollProgress) * Math.min(1, dt * 8);
+            const p = scrollProgress;
+
+            const approach = Math.min(1, p / DIVE_START);
+            const e = 1 - Math.pow(1 - approach, 2.4);
+            let cx = lerp(camStart.x, camEnd.x, e);
+            let cy = lerp(camStart.y, camEnd.y, e);
+            let cz = lerp(camStart.z, camEnd.z, e);
+
+            if (p > DIVE_START) {
+              const d = (p - DIVE_START) / (1 - DIVE_START);
+              const de = d * d;
+              cy = lerp(cy, 1.5, de);
+              cz = lerp(cz, 4.2, de);
+              const fov = lerp(48, 78, de);
+              if (camera.fov !== fov) { camera.fov = fov; camera.updateProjectionMatrix(); }
+            } else if (camera.fov !== 48) {
+              camera.fov = 48;
+              camera.updateProjectionMatrix();
+            }
+
+            const breath = 1 - Math.max(0, (p - DIVE_START) / (1 - DIVE_START));
+            cx += Math.sin(elapsed * 0.18) * 0.8 * breath;
+            cy += Math.sin(elapsed * 0.12) * 0.35 * breath;
+            camera.position.set(cx, cy, cz);
+            camera.lookAt(0, 0, 0);
+
+            const canvasOpacity = p < 0.85 ? 1 : Math.max(0, 1 - (p - 0.85) / 0.15);
+            canvas.style.opacity = canvasOpacity.toFixed(3);
+            vignette.style.opacity = canvasOpacity.toFixed(3);
+
+            const hintOpacity = Math.max(0, 1 - p * 6);
+            hint.style.opacity = hintOpacity.toFixed(3);
+
+            renderer.render(scene, camera);
+          }
+          loop();
+        }
+      }
     </script>
   </body>
 </html>
