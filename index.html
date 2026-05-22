@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Geist:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link
@@ -31,7 +31,7 @@
           extend: {
             fontFamily: {
               sans: ['Geist', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-              display: ['Geist', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+              display: ['Fraunces', 'Georgia', 'serif'],
               serif: ['"Instrument Serif"', 'serif'],
             },
             colors: {
@@ -63,6 +63,8 @@
     <style>
       :root {
         color-scheme: dark;
+        /* Brand display font — Fraunces (Google Fonts), weight 400 only */
+        --font-display: 'Fraunces', Georgia, serif;
       }
       html,
       body {
@@ -72,6 +74,18 @@
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
         font-feature-settings: 'ss01', 'ss02', 'cv11';
+      }
+
+      /* Fraunces for all headings + brand marks.
+         Weight forced to 400 — the css2 link loads only weight 400,
+         so any inherited 500/600/700 (e.g. Tailwind's font-medium on the
+         headings) would render as ugly synthetic faux-bold. !important
+         beats Tailwind CDN's runtime-injected font-weight utilities. */
+      h1, h2, h3, h4,
+      .font-display,
+      .lockup {
+        font-family: var(--font-display);
+        font-weight: 400 !important;
       }
 
       /* Mesh gradient field — fixed, GPU-light */
