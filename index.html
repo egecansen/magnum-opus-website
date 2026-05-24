@@ -183,13 +183,6 @@
         height: 1px;
       }
 
-      /* Marquee */
-      @keyframes marquee {
-        from { transform: translate3d(0, 0, 0); }
-        to   { transform: translate3d(-50%, 0, 0); }
-      }
-      .marquee { animation: marquee 38s linear infinite; }
-
       /* Hamburger morph */
       .nav-line {
         transition:
@@ -244,6 +237,40 @@
       }
       .pulse-dot { animation: pulseDot 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
 
+      /* Coverage bar fill */
+      @keyframes coverFill {
+        from { width: 0; }
+        to   { width: var(--cover, 91%); }
+      }
+      .cover-fill {
+        width: var(--cover, 91%);
+        animation: coverFill 1800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      .cover-shimmer {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0.18) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        transform: translateX(-100%);
+        animation: shimmer 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      }
+      @keyframes shimmer {
+        0%   { transform: translateX(-100%); }
+        60%  { transform: translateX(120%); }
+        100% { transform: translateX(120%); }
+      }
+
+      /* SVG node — covered pulse */
+      @keyframes nodePulse {
+        0%, 100% { r: 6; opacity: 1; }
+        50%      { r: 8; opacity: 0.85; }
+      }
+      .node-covered { animation: nodePulse 2.6s ease-in-out infinite; }
+
       /* Logo lockup tracking */
       .lockup {
         font-feature-settings: 'ss01';
@@ -252,7 +279,7 @@
 
       /* Reduce motion */
       @media (prefers-reduced-motion: reduce) {
-        .reveal, .reveal.in, .mesh-bg::before, .mesh-bg::after, .marquee, .blink, .pulse-dot {
+        .reveal, .reveal.in, .mesh-bg::before, .mesh-bg::after, .blink, .pulse-dot {
           animation: none !important;
           transition: none !important;
           opacity: 1 !important;
@@ -284,7 +311,6 @@
         <ul class="hidden items-center gap-1 px-1 text-sm text-white/70 md:flex">
           <li><a class="rounded-full px-3 py-2 transition-colors duration-500 ease-spring hover:text-white" href="#capabilities">Capabilities</a></li>
           <li><a class="rounded-full px-3 py-2 transition-colors duration-500 ease-spring hover:text-white" href="#how">How it works</a></li>
-          <li><a class="rounded-full px-3 py-2 transition-colors duration-500 ease-spring hover:text-white" href="#metrics">Results</a></li>
           <li><a class="rounded-full px-3 py-2 transition-colors duration-500 ease-spring hover:text-white" href="#pricing">Pricing</a></li>
         </ul>
         <a
@@ -324,7 +350,6 @@
       <ul class="flex flex-col items-center gap-6 text-center">
         <li class="menu-item"><a href="#capabilities" class="text-3xl tracking-tight">Capabilities</a></li>
         <li class="menu-item"><a href="#how" class="text-3xl tracking-tight">How it works</a></li>
-        <li class="menu-item"><a href="#metrics" class="text-3xl tracking-tight">Results</a></li>
         <li class="menu-item"><a href="#pricing" class="text-3xl tracking-tight">Pricing</a></li>
         <li class="menu-item">
           <a href="#contact" class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-base text-black">
@@ -497,36 +522,6 @@
         </div>
       </section>
 
-      <!-- ==================== TRUST STRIP ==================== -->
-      <section class="relative mt-28 md:mt-36">
-        <div class="mx-auto max-w-7xl px-4 md:px-8">
-          <p class="reveal text-center text-[11px] uppercase tracking-[0.28em] text-white/40">
-            Trusted by velocity-obsessed product teams
-          </p>
-          <div class="reveal mt-7 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]" data-delay="1">
-            <div class="marquee flex w-max items-center gap-14 text-2xl font-medium tracking-tight text-white/55 md:gap-20 md:text-3xl">
-              <span class="font-serif italic">Northwind</span>
-              <span>HALCYON</span>
-              <span class="font-serif italic">Mercato</span>
-              <span>VANTAGE</span>
-              <span class="font-serif italic">Lumen Labs</span>
-              <span>PRISM/CO</span>
-              <span class="font-serif italic">Atlas</span>
-              <span>SOLENOID</span>
-              <!-- duplicate for seamless loop -->
-              <span class="font-serif italic">Northwind</span>
-              <span>HALCYON</span>
-              <span class="font-serif italic">Mercato</span>
-              <span>VANTAGE</span>
-              <span class="font-serif italic">Lumen Labs</span>
-              <span>PRISM/CO</span>
-              <span class="font-serif italic">Atlas</span>
-              <span>SOLENOID</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- ==================== CAPABILITIES — Asymmetrical Bento ==================== -->
       <section id="capabilities" class="relative py-28 md:py-40">
         <div class="mx-auto max-w-7xl px-4 md:px-8">
@@ -552,20 +547,20 @@
             <article class="reveal bezel md:col-span-8 md:row-span-2">
               <div class="bezel-core relative h-full overflow-hidden p-7 md:p-10">
                 <div class="flex items-start justify-between gap-6">
-                  <div class="max-w-md">
+                  <div class="max-w-xl">
                     <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45">
                       <i class="ph-light ph-graph"></i>
-                      <span>Continuous discovery</span>
+                      <span>Continuous discovery · Coverage</span>
                     </div>
-                    <h3 class="mt-4 font-display text-3xl font-medium leading-tight tracking-tight md:text-4xl">
-                      Maps every journey
-                      <span class="font-serif italic text-white/70">before</span>
-                      a human opens the app.
+                    <h3 class="mt-4 font-display text-3xl font-medium leading-[1.05] tracking-tight md:text-[2.6rem]">
+                      Maps your whole product.
+                      <span class="block font-serif italic text-white/75">Covers every path it finds.</span>
                     </h3>
                     <p class="mt-4 text-pretty text-white/60">
-                      Opus crawls the live product, infers user intent from DOM
-                      semantics, and ranks journeys by business impact. The map
-                      stays warm — re-discovered on every deploy.
+                      Opus crawls the live app, ranks user journeys by business
+                      impact, and turns each one into executable test coverage —
+                      automatically. Re-runs on every deploy. No backlog, no
+                      blind spots.
                     </p>
                   </div>
                   <span class="hidden h-12 w-12 shrink-0 rounded-full border border-white/10 bg-white/[0.04] md:grid md:place-items-center">
@@ -573,116 +568,278 @@
                   </span>
                 </div>
 
+                <!-- Stat strip -->
+                <div class="mt-7 grid grid-cols-2 gap-2 md:mt-9 md:grid-cols-4 md:gap-3">
+                  <div class="rounded-2xl border border-white/5 bg-black/30 px-4 py-3">
+                    <div class="font-display text-2xl font-medium tracking-tight text-white">47</div>
+                    <div class="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-white/45">routes mapped</div>
+                  </div>
+                  <div class="rounded-2xl border border-white/5 bg-black/30 px-4 py-3">
+                    <div class="font-display text-2xl font-medium tracking-tight text-white">312</div>
+                    <div class="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-white/45">interactive elements</div>
+                  </div>
+                  <div class="rounded-2xl border border-white/5 bg-black/30 px-4 py-3">
+                    <div class="font-display text-2xl font-medium tracking-tight text-white">19</div>
+                    <div class="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-white/45">user journeys</div>
+                  </div>
+                  <div class="rounded-2xl border border-jade-500/25 bg-jade-500/[0.06] px-4 py-3">
+                    <div class="font-display text-2xl font-medium tracking-tight text-jade-400">91%</div>
+                    <div class="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-jade-300/70">journeys covered</div>
+                  </div>
+                </div>
+
                 <!-- Diagram -->
-                <div class="mt-8 rounded-3xl border border-white/5 bg-black/30 p-5 md:mt-10 md:p-7">
-                  <svg viewBox="0 0 720 220" class="w-full" aria-hidden="true">
+                <div class="mt-5 rounded-3xl border border-white/5 bg-black/30 p-5 md:p-7">
+                  <div class="flex items-center justify-between text-[10px] uppercase tracking-[0.18em] text-white/40">
+                    <span>Live journey map</span>
+                    <span class="flex items-center gap-4">
+                      <span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-jade-400"></span>covered</span>
+                      <span class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-white/30"></span>pending</span>
+                    </span>
+                  </div>
+                  <svg viewBox="0 0 760 280" class="mt-4 w-full" aria-hidden="true">
                     <defs>
-                      <linearGradient id="lg" x1="0" x2="1">
-                        <stop offset="0" stop-color="#34d399" stop-opacity="0.9" />
-                        <stop offset="1" stop-color="#a855f7" stop-opacity="0.8" />
-                      </linearGradient>
                       <radialGradient id="rg" cx="0.5" cy="0.5" r="0.5">
                         <stop offset="0" stop-color="#34d399" stop-opacity="0.55" />
                         <stop offset="1" stop-color="#34d399" stop-opacity="0" />
                       </radialGradient>
+                      <linearGradient id="lg-covered" x1="0" x2="1">
+                        <stop offset="0" stop-color="#34d399" stop-opacity="0.95" />
+                        <stop offset="1" stop-color="#34d399" stop-opacity="0.70" />
+                      </linearGradient>
+                      <linearGradient id="lg-pending" x1="0" x2="1">
+                        <stop offset="0" stop-color="#a855f7" stop-opacity="0.55" />
+                        <stop offset="1" stop-color="#a855f7" stop-opacity="0.35" />
+                      </linearGradient>
                     </defs>
-                    <!-- glow root -->
-                    <circle cx="80" cy="110" r="40" fill="url(#rg)" />
-                    <!-- nodes -->
-                    <g stroke="url(#lg)" stroke-width="1.2" fill="none" opacity="0.8">
-                      <path d="M80,110 C200,30 240,30 360,60" />
-                      <path d="M80,110 C200,110 240,110 360,110" />
-                      <path d="M80,110 C200,190 240,190 360,160" />
-                      <path d="M360,60 C480,40 540,40 660,30" />
-                      <path d="M360,60 C480,70 540,80 660,80" />
-                      <path d="M360,110 C480,100 540,110 660,120" />
-                      <path d="M360,110 C480,140 540,150 660,160" />
-                      <path d="M360,160 C480,170 540,180 660,190" />
+
+                    <!-- root glow -->
+                    <circle cx="80" cy="140" r="42" fill="url(#rg)" />
+
+                    <!-- covered edges -->
+                    <g stroke="url(#lg-covered)" stroke-width="1.6" fill="none">
+                      <path d="M80,140 C180,140 240,60 340,60" />
+                      <path d="M80,140 C180,140 240,140 340,140" />
+                      <path d="M340,60 C440,40 500,30 580,30" />
+                      <path d="M340,60 C440,70 500,85 580,95" />
+                      <path d="M340,140 C440,130 500,135 580,140" />
+                      <path d="M340,140 C440,165 500,180 580,190" />
                     </g>
-                    <g fill="#0a0a0b" stroke="rgba(255,255,255,0.18)">
-                      <circle cx="80"  cy="110" r="11" />
-                      <circle cx="360" cy="60"  r="8" />
-                      <circle cx="360" cy="110" r="8" />
-                      <circle cx="360" cy="160" r="8" />
-                      <circle cx="660" cy="30"  r="6" />
-                      <circle cx="660" cy="80"  r="6" />
-                      <circle cx="660" cy="120" r="6" />
-                      <circle cx="660" cy="160" r="6" />
-                      <circle cx="660" cy="190" r="6" />
+
+                    <!-- pending edges (dashed, purple) -->
+                    <g stroke="url(#lg-pending)" stroke-width="1.4" fill="none" stroke-dasharray="4 5">
+                      <path d="M80,140 C180,140 240,230 340,230" />
+                      <path d="M340,230 C440,230 500,245 580,255" />
                     </g>
+
+                    <!-- intermediate nodes -->
+                    <g fill="#0a0a0b">
+                      <circle cx="80"  cy="140" r="13" stroke="rgba(255,255,255,0.35)" stroke-width="1.4" />
+                      <circle cx="340" cy="60"  r="10" stroke="#34d399" stroke-width="1.4" opacity="0.85" />
+                      <circle cx="340" cy="140" r="10" stroke="#34d399" stroke-width="1.4" opacity="0.85" />
+                      <circle cx="340" cy="230" r="10" stroke="rgba(255,255,255,0.25)" stroke-width="1.2" stroke-dasharray="2 2" />
+                    </g>
+
+                    <!-- covered terminals -->
+                    <g fill="#0a0a0b" stroke="#34d399" stroke-width="1.8">
+                      <circle cx="580" cy="30"  r="7" class="node-covered" />
+                      <circle cx="580" cy="95"  r="7" class="node-covered" />
+                      <circle cx="580" cy="140" r="7" class="node-covered" />
+                      <circle cx="580" cy="190" r="7" class="node-covered" />
+                    </g>
+
+                    <!-- pending terminal -->
+                    <g fill="#0a0a0b" stroke="rgba(255,255,255,0.3)" stroke-width="1.3" stroke-dasharray="2.5 2.5">
+                      <circle cx="580" cy="255" r="7" />
+                    </g>
+
+                    <!-- inner jade dots -->
                     <g fill="#34d399">
-                      <circle cx="80" cy="110" r="3.5" />
+                      <circle cx="80" cy="140" r="4" />
+                      <circle cx="580" cy="30"  r="2.6" />
+                      <circle cx="580" cy="95"  r="2.6" />
+                      <circle cx="580" cy="140" r="2.6" />
+                      <circle cx="580" cy="190" r="2.6" />
                     </g>
-                    <g fill="rgba(255,255,255,0.55)" font-family="Geist, sans-serif" font-size="10" letter-spacing="0.04em">
-                      <text x="20" y="138">/ root</text>
-                      <text x="312" y="40">/ auth</text>
-                      <text x="312" y="138">/ app</text>
-                      <text x="312" y="190">/ billing</text>
+
+                    <!-- root label -->
+                    <text x="80" y="175" text-anchor="middle" font-family="Geist, sans-serif" font-size="13" letter-spacing="0.02em" fill="rgba(255,255,255,0.6)">/ root</text>
+
+                    <!-- section labels with coverage stats -->
+                    <g font-family="Geist, sans-serif" letter-spacing="0.02em">
+                      <text x="340" y="36" text-anchor="middle">
+                        <tspan font-size="13" fill="rgba(255,255,255,0.88)">/ auth</tspan>
+                        <tspan font-size="11" dx="5" fill="#34d399">2/2</tspan>
+                      </text>
+                      <text x="340" y="116" text-anchor="middle">
+                        <tspan font-size="13" fill="rgba(255,255,255,0.88)">/ app</tspan>
+                        <tspan font-size="11" dx="5" fill="#34d399">2/2</tspan>
+                      </text>
+                      <text x="340" y="206" text-anchor="middle">
+                        <tspan font-size="13" fill="rgba(255,255,255,0.6)">/ billing</tspan>
+                        <tspan font-size="11" dx="5" fill="rgba(168,85,247,0.75)">0/1</tspan>
+                      </text>
+                    </g>
+
+                    <!-- terminal labels (journey names) -->
+                    <g font-family="Geist, sans-serif" font-size="12.5" letter-spacing="0.01em">
+                      <text x="595" y="34" fill="rgba(255,255,255,0.82)">sign in</text>
+                      <text x="595" y="99" fill="rgba(255,255,255,0.82)">reset password</text>
+                      <text x="595" y="144" fill="rgba(255,255,255,0.82)">dashboard</text>
+                      <text x="595" y="194" fill="rgba(255,255,255,0.82)">compose</text>
+                      <text x="595" y="259" fill="rgba(255,255,255,0.42)">checkout</text>
                     </g>
                   </svg>
+                </div>
+
+                <!-- Coverage band -->
+                <div class="mt-5 rounded-2xl border border-white/5 bg-gradient-to-br from-jade-500/[0.08] via-black/30 to-purple-500/[0.06] p-5">
+                  <div class="flex items-baseline justify-between gap-4">
+                    <div class="flex items-center gap-2">
+                      <i class="ph-light ph-shield-check text-jade-400"></i>
+                      <span class="text-[10px] uppercase tracking-[0.22em] text-white/55">Test coverage</span>
+                    </div>
+                    <div class="font-display text-2xl font-medium tracking-tight text-white">
+                      91<span class="text-base text-white/50">%</span>
+                    </div>
+                  </div>
+                  <div class="mt-3 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div class="relative h-full rounded-full bg-gradient-to-r from-jade-500 via-jade-400 to-emerald-300 cover-fill" style="--cover:91%;">
+                      <span class="cover-shimmer"></span>
+                    </div>
+                  </div>
+                  <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-white/55">
+                    <span>17 of 19 journeys passing</span>
+                    <span class="flex items-center gap-1.5">
+                      <span class="h-1.5 w-1.5 rounded-full bg-jade-400 pulse-dot"></span>
+                      Re-discovered on every deploy
+                    </span>
+                  </div>
                 </div>
               </div>
             </article>
 
             <!-- Self-healing -->
             <article class="reveal bezel md:col-span-4">
-              <div class="bezel-core flex h-full flex-col justify-between gap-6 p-7">
+              <div class="bezel-core flex h-full flex-col gap-5 p-7">
                 <div>
                   <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45">
                     <i class="ph-light ph-lightning"></i>
                     <span>Self-healing locators</span>
                   </div>
-                  <h3 class="mt-4 font-display text-2xl font-medium tracking-tight">
-                    Drift detected at <span class="text-jade-400">02:14 UTC.</span>
-                    Suite green by 02:15.
+                  <h3 class="mt-4 font-display text-[1.7rem] font-medium leading-[1.08] tracking-tight">
+                    Your UI changes.
+                    <span class="block font-serif italic text-white/75">Your tests don't break.</span>
                   </h3>
+                  <p class="mt-3 text-sm text-white/55">
+                    When labels, layouts, or test IDs shift, Opus re-binds the locator automatically — no PR, no triage, no flaky retry.
+                  </p>
                 </div>
-                <div class="rounded-2xl border border-white/5 bg-black/30 p-4 font-mono text-[11.5px] text-white/60">
-                  <div class="text-white/35">// before</div>
-                  <div><span class="text-rose-300/80">getByTestId('signin-cta')</span></div>
-                  <div class="mt-2 text-white/35">// healed</div>
-                  <div><span class="text-jade-400">getByRole('button',{ name:/sign in/i })</span></div>
+                <div class="overflow-hidden rounded-2xl border border-white/5 bg-black/30">
+                  <div class="flex items-center justify-between gap-2 border-b border-white/5 bg-white/[0.02] px-3.5 py-2 font-mono text-[10.5px] text-white/45">
+                    <span class="flex items-center gap-2">
+                      <span class="h-1.5 w-1.5 rounded-full bg-jade-400 pulse-dot"></span>
+                      locator.diff
+                    </span>
+                    <span class="text-[10px] uppercase tracking-[0.16em] text-white/40">
+                      auto-healed · <span class="text-white/75">32s</span>
+                    </span>
+                  </div>
+                  <div class="p-4 font-mono text-[11.5px] text-white/60">
+                    <div class="text-white/35">// was</div>
+                    <div><span class="text-rose-300/80">getByTestId('signin-cta')</span></div>
+                    <div class="my-2 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/30">
+                      <i class="ph-light ph-arrow-down text-jade-400/80"></i>
+                      <span>re-bound by intent</span>
+                    </div>
+                    <div class="text-white/35">// now</div>
+                    <div><span class="text-jade-400">getByRole('button',{ name:/sign in/i })</span></div>
+                  </div>
+                </div>
+
+                <div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4 text-[11px] text-white/50">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-clock-countdown text-white/60"></i>
+                    Median heal <span class="text-white/85">28s</span>
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-target text-jade-400/80"></i>
+                    Accuracy <span class="text-jade-400">99.4%</span>
+                  </span>
                 </div>
               </div>
             </article>
 
-            <!-- Parallel execution -->
+            <!-- Onboarding -->
             <article class="reveal bezel md:col-span-4">
-              <div class="bezel-core flex h-full flex-col justify-between gap-6 p-7">
+              <div class="bezel-core flex h-full flex-col gap-5 p-7">
                 <div>
                   <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45">
-                    <i class="ph-light ph-stack"></i>
-                    <span>Parallel execution</span>
+                    <i class="ph-light ph-rocket-launch"></i>
+                    <span>Onboarding · Day one</span>
                   </div>
-                  <h3 class="mt-4 font-display text-2xl font-medium tracking-tight">
-                    1,000 specs.
-                    <span class="font-serif italic text-white/75">Under five minutes.</span>
+                  <h3 class="mt-4 font-display text-[1.7rem] font-medium leading-[1.08] tracking-tight">
+                    First green suite
+                    <span class="block font-serif italic text-white/75">— same day.</span>
                   </h3>
+                  <p class="mt-3 text-sm text-white/55">
+                    No SDK to integrate, no fixtures to write, no harness to wire up. Point Opus at a URL — the fleet handles the rest.
+                  </p>
                 </div>
-                <div class="grid grid-cols-8 gap-1.5">
-                  <span class="h-9 rounded-md bg-jade-500/70"></span>
-                  <span class="h-9 rounded-md bg-jade-500/60"></span>
-                  <span class="h-9 rounded-md bg-jade-500/80"></span>
-                  <span class="h-9 rounded-md bg-white/10"></span>
-                  <span class="h-9 rounded-md bg-jade-500/55"></span>
-                  <span class="h-9 rounded-md bg-jade-500/70"></span>
-                  <span class="h-9 rounded-md bg-jade-500/40"></span>
-                  <span class="h-9 rounded-md bg-jade-500/65"></span>
-                  <span class="h-9 rounded-md bg-jade-500/80"></span>
-                  <span class="h-9 rounded-md bg-jade-500/55"></span>
-                  <span class="h-9 rounded-md bg-white/10"></span>
-                  <span class="h-9 rounded-md bg-jade-500/70"></span>
-                  <span class="h-9 rounded-md bg-jade-500/45"></span>
-                  <span class="h-9 rounded-md bg-jade-500/85"></span>
-                  <span class="h-9 rounded-md bg-jade-500/60"></span>
-                  <span class="h-9 rounded-md bg-jade-500/50"></span>
+
+                <!-- Linked status row -->
+                <div class="rounded-2xl border border-white/5 bg-black/30 px-4 py-2.5">
+                  <div class="flex items-center gap-2.5">
+                    <i class="ph-light ph-globe shrink-0 text-[13px] text-white/45"></i>
+                    <span class="min-w-0 flex-1 truncate font-mono text-[12.5px] text-white/85">app.mercato.io</span>
+                    <span class="flex shrink-0 items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-jade-300">
+                      <span class="h-1 w-1 rounded-full bg-jade-400 pulse-dot"></span>
+                      Linked
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Setup ladder -->
+                <ul class="space-y-2 text-[12px]">
+                  <li class="flex items-center gap-3">
+                    <span class="grid h-4 w-4 place-items-center rounded-full bg-jade-500/15 ring-1 ring-jade-500/40">
+                      <i class="ph-bold ph-check text-[9px] text-jade-400"></i>
+                    </span>
+                    <span class="tabular-nums text-white/40">09:14</span>
+                    <span class="text-white/75">Mapped 47 routes</span>
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <span class="grid h-4 w-4 place-items-center rounded-full bg-jade-500/15 ring-1 ring-jade-500/40">
+                      <i class="ph-bold ph-check text-[9px] text-jade-400"></i>
+                    </span>
+                    <span class="tabular-nums text-white/40">09:51</span>
+                    <span class="text-white/75">Composed 312 specs</span>
+                  </li>
+                  <li class="flex items-center gap-3">
+                    <span class="grid h-4 w-4 place-items-center rounded-full bg-jade-500/15 ring-1 ring-jade-500/40">
+                      <i class="ph-bold ph-check text-[9px] text-jade-400"></i>
+                    </span>
+                    <span class="tabular-nums text-white/40">11:08</span>
+                    <span class="text-white/75">Suite ran <span class="text-jade-400">green</span></span>
+                  </li>
+                </ul>
+
+                <div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4 text-[11px] text-white/50">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-timer text-white/60"></i>
+                    Setup <span class="text-white/85">~6 min</span>
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-plug text-jade-400/80"></i>
+                    Zero <span class="text-jade-400">code</span>
+                  </span>
                 </div>
               </div>
             </article>
 
             <!-- Evidence -->
             <article class="reveal bezel md:col-span-6">
-              <div class="bezel-core flex h-full flex-col justify-between gap-6 p-7">
+              <div class="bezel-core flex h-full flex-col gap-5 p-7">
                 <div>
                   <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45">
                     <i class="ph-light ph-camera"></i>
@@ -696,18 +853,121 @@
                     Per-step DOM snapshots, video, HAR, console, and a CDP trace — bundled per run, queryable by journey.
                   </p>
                 </div>
-                <div class="grid grid-cols-4 gap-2">
-                  <div class="aspect-[4/3] rounded-xl border border-white/5 bg-gradient-to-br from-white/10 to-white/[0.02]"></div>
-                  <div class="aspect-[4/3] rounded-xl border border-white/5 bg-gradient-to-tr from-jade-500/25 via-white/5 to-purple-500/15"></div>
-                  <div class="aspect-[4/3] rounded-xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-jade-500/10"></div>
-                  <div class="aspect-[4/3] rounded-xl border border-white/5 bg-gradient-to-tl from-purple-500/20 to-white/[0.02]"></div>
+
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <!-- screen.png — UI wireframe -->
+                  <div class="flex aspect-[4/3] flex-col justify-between rounded-xl border border-white/5 bg-gradient-to-br from-white/10 to-white/[0.02] p-2.5">
+                    <div class="space-y-1">
+                      <div class="flex gap-1">
+                        <span class="h-1 w-1 rounded-full bg-rose-400/60"></span>
+                        <span class="h-1 w-1 rounded-full bg-amber-400/60"></span>
+                        <span class="h-1 w-1 rounded-full bg-jade-400/60"></span>
+                      </div>
+                      <div class="h-1 w-2/3 rounded-sm bg-white/25"></div>
+                      <div class="h-3 w-full rounded-sm bg-white/15"></div>
+                      <div class="flex gap-1">
+                        <div class="h-2 flex-1 rounded-sm bg-white/12"></div>
+                        <div class="h-2 flex-1 rounded-sm bg-white/12"></div>
+                      </div>
+                    </div>
+                    <div class="font-mono text-[10px] text-white/65">screen.png</div>
+                  </div>
+
+                  <!-- session.mp4 — play button + duration -->
+                  <div class="flex aspect-[4/3] flex-col justify-between rounded-xl border border-white/5 bg-gradient-to-tr from-jade-500/25 via-white/5 to-purple-500/15 p-2.5">
+                    <div class="flex items-start justify-between">
+                      <span class="grid h-6 w-6 place-items-center rounded-full bg-white/15 ring-1 ring-white/15">
+                        <span class="ml-px h-0 w-0 border-y-[4px] border-l-[6px] border-y-transparent border-l-white/85"></span>
+                      </span>
+                      <span class="font-mono text-[8.5px] text-white/55">00:47</span>
+                    </div>
+                    <div class="font-mono text-[10px] text-white/70">session.mp4</div>
+                  </div>
+
+                  <!-- network.har — request bars -->
+                  <div class="flex aspect-[4/3] flex-col justify-between rounded-xl border border-white/5 bg-gradient-to-br from-white/[0.03] to-jade-500/10 p-2.5">
+                    <div class="flex h-7 items-end gap-[3px]">
+                      <span class="block w-1 rounded-sm bg-jade-400/55" style="height:40%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/75" style="height:65%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/35" style="height:28%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/80" style="height:80%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/55" style="height:50%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/85" style="height:95%"></span>
+                      <span class="block w-1 rounded-sm bg-rose-400/55" style="height:35%"></span>
+                      <span class="block w-1 rounded-sm bg-jade-400/55" style="height:55%"></span>
+                    </div>
+                    <div class="font-mono text-[10px] text-white/70">network.har</div>
+                  </div>
+
+                  <!-- trace.cdp — mini terminal -->
+                  <div class="flex aspect-[4/3] flex-col justify-between rounded-xl border border-white/5 bg-gradient-to-tl from-purple-500/20 to-white/[0.02] p-2.5">
+                    <div class="space-y-0.5 font-mono text-[8px] leading-tight">
+                      <div class="text-jade-400/75">› click(btn)</div>
+                      <div class="text-white/55">  200 · 38ms</div>
+                      <div class="text-white/35">  ok</div>
+                    </div>
+                    <div class="font-mono text-[10px] text-white/70">trace.cdp</div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-white/40">
+                    <i class="ph-light ph-list-checks"></i>
+                    <span>Recent runs</span>
+                  </div>
+                  <div class="divide-y divide-white/5 overflow-hidden rounded-xl border border-white/5 bg-black/30">
+                    <div class="flex items-center justify-between gap-3 px-3.5 py-2 text-[12px]">
+                      <span class="flex items-center gap-2 font-mono text-white/75">
+                        <span class="h-1 w-1 rounded-full bg-jade-400"></span>
+                        checkout
+                      </span>
+                      <span class="flex items-center gap-3 font-mono text-[10.5px] text-white/45">
+                        <span>47 steps</span>
+                        <span>12 MB</span>
+                        <span class="text-white/30">3m</span>
+                      </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 px-3.5 py-2 text-[12px]">
+                      <span class="flex items-center gap-2 font-mono text-white/75">
+                        <span class="h-1 w-1 rounded-full bg-jade-400"></span>
+                        sign in
+                      </span>
+                      <span class="flex items-center gap-3 font-mono text-[10.5px] text-white/45">
+                        <span>12 steps</span>
+                        <span>4 MB</span>
+                        <span class="text-white/30">8m</span>
+                      </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-3 px-3.5 py-2 text-[12px]">
+                      <span class="flex items-center gap-2 font-mono text-white/75">
+                        <span class="h-1 w-1 rounded-full bg-jade-400"></span>
+                        dashboard
+                      </span>
+                      <span class="flex items-center gap-3 font-mono text-[10.5px] text-white/45">
+                        <span>23 steps</span>
+                        <span>8 MB</span>
+                        <span class="text-white/30">14m</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4 text-[11px] text-white/50">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-archive-box text-white/60"></i>
+                    <span class="text-white/85">~38 MB</span> bundled per run
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-magnifying-glass text-jade-400/80"></i>
+                    1-click <span class="text-jade-400">replay</span>
+                  </span>
                 </div>
               </div>
             </article>
 
             <!-- Bug discovery -->
             <article class="reveal bezel md:col-span-6">
-              <div class="bezel-core flex h-full flex-col justify-between gap-6 p-7">
+              <div class="bezel-core flex h-full flex-col gap-5 p-7">
                 <div>
                   <div class="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-white/45">
                     <i class="ph-light ph-bug-beetle"></i>
@@ -722,15 +982,52 @@
                     Once your suite is green, a second swarm runs adversarial passes — edge inputs, race conditions, broken auth states, exotic locales.
                   </p>
                 </div>
-                <div class="space-y-2">
-                  <div class="flex items-center justify-between rounded-xl border border-white/5 bg-black/30 px-4 py-2.5 text-sm">
-                    <span class="flex items-center gap-3 text-white/75"><span class="h-1.5 w-1.5 rounded-full bg-rose-300"></span>P1 · race in /api/checkout/confirm</span>
-                    <span class="text-[11px] text-white/40">found · 02:41</span>
+
+                <div class="space-y-2.5">
+                  <div class="rounded-xl border border-white/5 bg-black/30 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-400/30 bg-rose-400/[0.08] px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-rose-200">
+                          <span class="h-1.5 w-1.5 rounded-full bg-rose-400 pulse-dot"></span>
+                          Critical
+                        </span>
+                        <span class="text-[10px] uppercase tracking-[0.16em] text-white/40">payments</span>
+                      </div>
+                      <span class="text-[11px] text-white/40">found · 02:41 UTC</span>
+                    </div>
+                    <div class="mt-2 text-sm leading-snug text-white/85">
+                      Checkout race — double-submit can corrupt order ID.
+                    </div>
+                    <div class="mt-1 font-mono text-[10.5px] text-white/40">POST /api/checkout/confirm</div>
                   </div>
-                  <div class="flex items-center justify-between rounded-xl border border-white/5 bg-black/30 px-4 py-2.5 text-sm">
-                    <span class="flex items-center gap-3 text-white/75"><span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span>P2 · stale token on org switch</span>
-                    <span class="text-[11px] text-white/40">found · 03:08</span>
+
+                  <div class="rounded-xl border border-white/5 bg-black/30 p-4">
+                    <div class="flex items-center justify-between gap-3">
+                      <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/[0.08] px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-amber-200">
+                          <span class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                          High
+                        </span>
+                        <span class="text-[10px] uppercase tracking-[0.16em] text-white/40">auth</span>
+                      </div>
+                      <span class="text-[11px] text-white/40">found · 03:08 UTC</span>
+                    </div>
+                    <div class="mt-2 text-sm leading-snug text-white/85">
+                      Stale session token persists after org switch.
+                    </div>
+                    <div class="mt-1 font-mono text-[10.5px] text-white/40">orgs.switch() · session.context</div>
                   </div>
+                </div>
+
+                <div class="mt-auto flex items-center justify-between border-t border-white/5 pt-4 text-[11px] text-white/50">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-bug-beetle text-rose-300/80"></i>
+                    <span class="text-white/85">47 found</span> · 30-day window
+                  </span>
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-light ph-shield-check text-jade-400/80"></i>
+                    Pre-prod catch rate <span class="text-jade-400">94%</span>
+                  </span>
                 </div>
               </div>
             </article>
@@ -739,7 +1036,7 @@
       </section>
 
       <!-- ==================== HOW IT WORKS ==================== -->
-      <section id="how" class="relative py-28 md:py-40">
+      <section id="how" class="relative py-16 md:py-24">
         <div class="mx-auto max-w-7xl px-4 md:px-8">
           <div class="grid items-end gap-10 md:grid-cols-12 md:gap-16">
             <div class="reveal md:col-span-5">
@@ -760,59 +1057,63 @@
             </p>
           </div>
 
-          <ol class="mt-16 grid grid-cols-1 gap-4 md:mt-20 md:grid-cols-4 md:gap-5">
+          <ol class="mt-10 grid grid-cols-1 gap-4 md:mt-12 md:grid-cols-4 md:gap-5">
             <li class="reveal bezel" data-delay="1">
-              <div class="bezel-core flex h-full flex-col gap-5 p-6">
-                <div class="flex items-center justify-between">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">01 — Map</span>
-                  <span class="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5">
-                    <i class="ph-light ph-compass text-lg text-white/75"></i>
+              <div class="bezel-core relative flex h-full flex-col gap-5 overflow-hidden p-6">
+                <span aria-hidden="true" class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-jade-500/[0.18] blur-3xl"></span>
+                <div class="relative flex items-center justify-between">
+                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-jade-300/85">01 — Map</span>
+                  <span class="grid h-9 w-9 place-items-center rounded-full border border-jade-500/30 bg-jade-500/[0.08]">
+                    <i class="ph-light ph-compass text-lg text-jade-300"></i>
                   </span>
                 </div>
-                <h3 class="font-display text-xl font-medium tracking-tight">Discover the surface area</h3>
-                <p class="text-sm text-white/55">
+                <h3 class="relative font-display text-xl font-medium tracking-tight">Discover the surface area</h3>
+                <p class="relative text-sm text-white/55">
                   Agents crawl your product, infer journeys, build the live application graph.
                 </p>
               </div>
             </li>
             <li class="reveal bezel" data-delay="2">
-              <div class="bezel-core flex h-full flex-col gap-5 p-6">
-                <div class="flex items-center justify-between">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">02 — Compose</span>
-                  <span class="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5">
-                    <i class="ph-light ph-pen-nib text-lg text-white/75"></i>
+              <div class="bezel-core relative flex h-full flex-col gap-5 overflow-hidden p-6">
+                <span aria-hidden="true" class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-jade-500/[0.14] blur-3xl"></span>
+                <div class="relative flex items-center justify-between">
+                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-jade-300/85">02 — Compose</span>
+                  <span class="grid h-9 w-9 place-items-center rounded-full border border-jade-500/30 bg-jade-500/[0.08]">
+                    <i class="ph-light ph-pen-nib text-lg text-jade-300"></i>
                   </span>
                 </div>
-                <h3 class="font-display text-xl font-medium tracking-tight">Write the full variant set</h3>
-                <p class="text-sm text-white/55">
+                <h3 class="relative font-display text-xl font-medium tracking-tight">Write the full variant set</h3>
+                <p class="relative text-sm text-white/55">
                   Happy path, edges, error states, mobile, data lifecycles — composed per journey, never duplicated.
                 </p>
               </div>
             </li>
             <li class="reveal bezel" data-delay="3">
-              <div class="bezel-core flex h-full flex-col gap-5 p-6">
-                <div class="flex items-center justify-between">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">03 — Execute</span>
-                  <span class="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5">
-                    <i class="ph-light ph-play-circle text-lg text-white/75"></i>
+              <div class="bezel-core relative flex h-full flex-col gap-5 overflow-hidden p-6">
+                <span aria-hidden="true" class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/[0.18] blur-3xl"></span>
+                <div class="relative flex items-center justify-between">
+                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-purple-300/85">03 — Execute</span>
+                  <span class="grid h-9 w-9 place-items-center rounded-full border border-purple-500/30 bg-purple-500/[0.08]">
+                    <i class="ph-light ph-play-circle text-lg text-purple-300"></i>
                   </span>
                 </div>
-                <h3 class="font-display text-xl font-medium tracking-tight">Run continuously, in parallel</h3>
-                <p class="text-sm text-white/55">
+                <h3 class="relative font-display text-xl font-medium tracking-tight">Run continuously, in parallel</h3>
+                <p class="relative text-sm text-white/55">
                   Chromium, WebKit, Firefox · desktop and mobile · on every deploy and every hour in between.
                 </p>
               </div>
             </li>
             <li class="reveal bezel" data-delay="4">
-              <div class="bezel-core flex h-full flex-col gap-5 p-6">
-                <div class="flex items-center justify-between">
-                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">04 — Heal</span>
-                  <span class="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5">
-                    <i class="ph-light ph-arrows-clockwise text-lg text-white/75"></i>
+              <div class="bezel-core relative flex h-full flex-col gap-5 overflow-hidden p-6">
+                <span aria-hidden="true" class="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/[0.14] blur-3xl"></span>
+                <div class="relative flex items-center justify-between">
+                  <span class="font-mono text-[11px] uppercase tracking-[0.2em] text-purple-300/85">04 — Heal</span>
+                  <span class="grid h-9 w-9 place-items-center rounded-full border border-purple-500/30 bg-purple-500/[0.08]">
+                    <i class="ph-light ph-arrows-clockwise text-lg text-purple-300"></i>
                   </span>
                 </div>
-                <h3 class="font-display text-xl font-medium tracking-tight">Self-repair on drift</h3>
-                <p class="text-sm text-white/55">
+                <h3 class="relative font-display text-xl font-medium tracking-tight">Self-repair on drift</h3>
+                <p class="relative text-sm text-white/55">
                   When DOM, copy, or flow changes, Opus rewrites the affected steps and re-verifies — no PR needed.
                 </p>
               </div>
@@ -821,114 +1122,6 @@
         </div>
       </section>
 
-      <!-- ==================== METRICS ==================== -->
-      <section id="metrics" class="relative py-28 md:py-40">
-        <div class="mx-auto max-w-7xl px-4 md:px-8">
-          <div class="bezel reveal">
-            <div class="bezel-core relative overflow-hidden p-8 md:p-14">
-              <div class="grid gap-12 md:grid-cols-12 md:gap-10">
-                <div class="md:col-span-5">
-                  <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/60">
-                    Outcomes
-                  </span>
-                  <h2 class="mt-5 font-display text-[clamp(2rem,4vw,3.25rem)] font-medium leading-[1.05] tracking-[-0.035em]">
-                    What teams measure
-                    <br />
-                    <span class="font-serif italic text-white/75">after sixty days.</span>
-                  </h2>
-                  <p class="mt-5 max-w-md text-pretty text-white/60">
-                    Aggregate across thirty-two production deployments. Median values,
-                    not best case.
-                  </p>
-                </div>
-
-                <dl class="grid grid-cols-2 gap-x-8 gap-y-10 md:col-span-7 md:grid-cols-2">
-                  <div>
-                    <dt class="text-[10px] uppercase tracking-[0.22em] text-white/40">Coverage achieved</dt>
-                    <dd class="mt-3 font-display text-5xl font-medium tracking-[-0.04em] md:text-6xl">
-                      <span class="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">92<span class="text-white/40">%</span></span>
-                    </dd>
-                    <p class="mt-2 text-sm text-white/50">of mapped journeys, day 1 to day 14</p>
-                  </div>
-                  <div>
-                    <dt class="text-[10px] uppercase tracking-[0.22em] text-white/40">QA hours reclaimed</dt>
-                    <dd class="mt-3 font-display text-5xl font-medium tracking-[-0.04em] md:text-6xl">
-                      <span class="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">38<span class="text-white/40">/wk</span></span>
-                    </dd>
-                    <p class="mt-2 text-sm text-white/50">per engineering pod, median</p>
-                  </div>
-                  <div>
-                    <dt class="text-[10px] uppercase tracking-[0.22em] text-white/40">Flake rate</dt>
-                    <dd class="mt-3 font-display text-5xl font-medium tracking-[-0.04em] md:text-6xl">
-                      <span class="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">0.4<span class="text-white/40">%</span></span>
-                    </dd>
-                    <p class="mt-2 text-sm text-white/50">post self-healing, sustained</p>
-                  </div>
-                  <div>
-                    <dt class="text-[10px] uppercase tracking-[0.22em] text-white/40">Escaped P1 defects</dt>
-                    <dd class="mt-3 font-display text-5xl font-medium tracking-[-0.04em] md:text-6xl">
-                      <span class="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">−<span>71</span><span class="text-white/40">%</span></span>
-                    </dd>
-                    <p class="mt-2 text-sm text-white/50">vs. the quarter before Opus</p>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ==================== TESTIMONIAL ==================== -->
-      <section class="relative pb-28 md:pb-40">
-        <div class="mx-auto max-w-7xl px-4 md:px-8">
-          <div class="grid gap-5 md:grid-cols-12">
-            <figure class="reveal bezel md:col-span-7">
-              <div class="bezel-core flex h-full flex-col justify-between gap-10 p-8 md:p-12">
-                <blockquote class="font-serif text-[1.6rem] italic leading-[1.25] tracking-[-0.01em] text-white/90 md:text-[2.1rem]">
-                  “We replaced an eight-person QA cell with Opus and a single engineer
-                  to hold the leash. Our flake rate went from
-                  <span class="not-italic font-sans text-white">11.4%</span>
-                  to under one. Release night is boring now — and that is the best
-                  compliment I can give it.”
-                </blockquote>
-                <figcaption class="flex items-center gap-4">
-                  <span class="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-jade-400/40 to-purple-500/40 ring-1 ring-white/10">
-                    <span class="font-medium text-white">EM</span>
-                  </span>
-                  <div>
-                    <div class="font-medium tracking-tight text-white">Elena Marín</div>
-                    <div class="text-sm text-white/55">VP Engineering, Halcyon</div>
-                  </div>
-                </figcaption>
-              </div>
-            </figure>
-
-            <div class="reveal grid gap-5 md:col-span-5" data-delay="1">
-              <div class="bezel">
-                <div class="bezel-core p-8">
-                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/40">Release confidence</div>
-                  <div class="mt-4 font-display text-4xl font-medium tracking-tight md:text-5xl">
-                    From quarterly
-                    <span class="font-serif italic text-white/70">→</span>
-                    every Tuesday.
-                  </div>
-                  <p class="mt-3 text-sm text-white/55">Mercato moved from a 12-week release cadence to weekly within one Opus pilot.</p>
-                </div>
-              </div>
-              <div class="bezel">
-                <div class="bezel-core p-8">
-                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/40">Onboarding</div>
-                  <div class="mt-4 font-display text-4xl font-medium tracking-tight md:text-5xl">
-                    First green suite
-                    <span class="font-serif italic text-white/70">— same day.</span>
-                  </div>
-                  <p class="mt-3 text-sm text-white/55">No SDK to integrate, no fixtures to write. Point Opus at a URL.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- ==================== PRICING ==================== -->
       <section id="pricing" class="relative py-28 md:py-40">
@@ -947,18 +1140,25 @@
             <article class="reveal bezel" data-delay="1">
               <div class="bezel-core flex h-full flex-col gap-6 p-7 md:p-9">
                 <div>
-                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Pilot</div>
-                  <h3 class="mt-2 font-display text-2xl font-medium tracking-tight">Two weeks. One product.</h3>
+                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Tier I.</div>
+                  <h3 class="mt-2 font-display text-3xl font-medium tracking-tight">Initiate</h3>
+                  <p class="mt-3 text-sm text-white/55">
+                    For the team that owns one product and wants to stop apologising for the test suite.
+                  </p>
                 </div>
-                <div class="font-display text-4xl font-medium tracking-[-0.035em]">$9,800<span class="text-base text-white/45"> · fixed</span></div>
+                <div class="font-display text-4xl font-medium tracking-[-0.035em]">
+                  <span class="text-white/85">$</span>
+                  <span class="font-serif italic text-white/85">Custom</span>
+                </div>
                 <ul class="space-y-3 text-sm text-white/65">
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Full journey map of one web product</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Composed suite across 3 browsers</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Evidence packs & CI integration</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Day-1 coverage report</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>1 repository</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Unlimited PR review runs</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>1 onboarding run / quarter</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>4 coverage-expansion runs / quarter</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Slack Connect, business hours</li>
                 </ul>
                 <a href="#contact" class="group mt-auto inline-flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-5 pr-2 text-sm font-medium text-white/90 transition-transform duration-500 ease-spring hover:scale-[1.02] active:scale-[0.98] hover:bg-white/[0.08]">
-                  Start pilot
+                  Request a pilot
                   <span class="grid h-8 w-8 place-items-center rounded-full bg-white/5 transition-transform duration-500 ease-spring group-hover:translate-x-0.5 group-hover:-translate-y-px">
                     <i class="ph-light ph-arrow-right"></i>
                   </span>
@@ -970,23 +1170,29 @@
               <div class="bezel-core flex h-full flex-col gap-6 p-7 md:p-9">
                 <div class="absolute right-6 top-6">
                   <span class="inline-flex items-center gap-2 rounded-full border border-jade-400/40 bg-jade-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-jade-400">
-                    Most chosen
+                    Recommended
                   </span>
                 </div>
                 <div>
-                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Continuous</div>
-                  <h3 class="mt-2 font-display text-2xl font-medium tracking-tight">Always-on autonomous QA</h3>
+                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Tier II.</div>
+                  <h3 class="mt-2 font-display text-3xl font-medium tracking-tight">Adept</h3>
+                  <p class="mt-3 text-sm text-white/55">
+                    Three repos under coverage — the customer dashboard, the admin tool, the partner-facing app.
+                  </p>
                 </div>
-                <div class="font-display text-4xl font-medium tracking-[-0.035em]">From $14k<span class="text-base text-white/45"> / month</span></div>
+                <div class="font-display text-4xl font-medium tracking-[-0.035em]">
+                  <span class="text-white/85">$</span>
+                  <span class="font-serif italic text-white/85">Custom</span>
+                </div>
                 <ul class="space-y-3 text-sm text-white/65">
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Unlimited journeys, unlimited specs</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Self-healing across deploys</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Adversarial bug discovery passes</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Slack / PagerDuty / Linear routing</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Dedicated reliability engineer</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Up to 3 repositories</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Unlimited PR review runs</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>3 onboarding runs / quarter</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>12 coverage-expansion runs / quarter</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Shared Slack, named CSM, 24h response</li>
                 </ul>
                 <a href="#contact" class="group mt-auto inline-flex w-fit items-center gap-1 rounded-full bg-white py-2 pl-5 pr-2 text-sm font-medium text-black transition-transform duration-500 ease-spring hover:scale-[1.02] active:scale-[0.98]">
-                  Book a call
+                  Talk to us
                   <span class="grid h-8 w-8 place-items-center rounded-full bg-black/5 transition-transform duration-500 ease-spring group-hover:translate-x-0.5 group-hover:-translate-y-px">
                     <i class="ph-light ph-arrow-up-right"></i>
                   </span>
@@ -997,15 +1203,22 @@
             <article class="reveal bezel" data-delay="3">
               <div class="bezel-core flex h-full flex-col gap-6 p-7 md:p-9">
                 <div>
-                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Enterprise</div>
-                  <h3 class="mt-2 font-display text-2xl font-medium tracking-tight">For regulated & multi-product orgs</h3>
+                  <div class="text-[10px] uppercase tracking-[0.22em] text-white/45">Tier III.</div>
+                  <h3 class="mt-2 font-display text-3xl font-medium tracking-tight">Magus</h3>
+                  <p class="mt-3 text-sm text-white/55">
+                    When the eng org has decided to replace a QA team with leverage instead of headcount.
+                  </p>
                 </div>
-                <div class="font-display text-4xl font-medium tracking-[-0.035em]">Bespoke</div>
+                <div class="font-display text-4xl font-medium tracking-[-0.035em]">
+                  <span class="text-white/85">$</span>
+                  <span class="font-serif italic text-white/85">Custom</span>
+                </div>
                 <ul class="space-y-3 text-sm text-white/65">
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Single-tenant deployment (VPC / on-prem)</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>SOC 2 Type II · HIPAA · GDPR posture</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Compliance evidence retention (7-yr)</li>
-                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Multi-product orchestration plane</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Unlimited repositories</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Unlimited everything</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Custom skills · on-prem option</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Dedicated CSM</li>
+                  <li class="flex gap-3"><i class="ph-light ph-check pt-0.5 text-jade-400"></i>Quarterly architecture review with the founders</li>
                 </ul>
                 <a href="#contact" class="group mt-auto inline-flex w-fit items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] py-2 pl-5 pr-2 text-sm font-medium text-white/90 transition-transform duration-500 ease-spring hover:scale-[1.02] active:scale-[0.98] hover:bg-white/[0.08]">
                   Talk to founders
@@ -1028,19 +1241,22 @@
               <span class="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-jade-500/30 blur-3xl"></span>
               <span class="pointer-events-none absolute -left-20 bottom-[-6rem] h-72 w-72 rounded-full bg-purple-500/20 blur-3xl"></span>
 
-              <div class="relative grid items-end gap-10 md:grid-cols-12">
+              <div class="relative grid items-start gap-10 md:grid-cols-12">
                 <div class="md:col-span-7">
                   <span class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/70">
-                    Bring Opus into your stack
+                    Pilot
                   </span>
                   <h2 class="mt-5 max-w-3xl text-balance font-display text-[clamp(2rem,4.6vw,4rem)] font-medium leading-[1.02] tracking-[-0.04em]">
-                    Ship faster.
+                    Stop writing tests.
                     <br />
-                    <span class="font-serif italic text-white/80">Sleep deeper.</span>
+                    <span class="font-serif italic text-white/80">Start shipping.</span>
                   </h2>
                   <p class="mt-5 max-w-xl text-pretty text-white/65 md:text-lg">
-                    Two-week pilot. One product. Fixed scope. If Opus doesn't ship
-                    a green, healing suite on day one, you owe us nothing.
+                    Thirty days. One repository. A written success bar. If we don't
+                    meet it, you don't pay — and you keep every test we wrote.
+                  </p>
+                  <p class="mt-5 max-w-xl text-[12.5px] leading-relaxed text-white/45">
+                    We read every submission. No marketing automation. No drip campaigns. A founder replies within twenty-four hours.
                   </p>
                 </div>
 
@@ -1051,17 +1267,25 @@
                       <input
                         required
                         type="email"
-                        placeholder="you@company.com"
+                        placeholder="Work email"
                         class="w-full rounded-full border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none transition-all duration-500 ease-spring focus:border-white/20 focus:bg-white/[0.07]"
                       />
                     </label>
                     <label class="block">
-                      <span class="sr-only">Product URL</span>
+                      <span class="sr-only">Repo or company URL</span>
                       <input
                         type="url"
-                        placeholder="Product URL (optional)"
+                        placeholder="Repo or company URL (optional)"
                         class="w-full rounded-full border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none transition-all duration-500 ease-spring focus:border-white/20 focus:bg-white/[0.07]"
                       />
+                    </label>
+                    <label class="block">
+                      <span class="sr-only">What hurts about your test suite right now?</span>
+                      <textarea
+                        rows="3"
+                        placeholder="What hurts about your test suite right now?"
+                        class="w-full resize-none rounded-3xl border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm text-white placeholder:text-white/40 outline-none transition-all duration-500 ease-spring focus:border-white/20 focus:bg-white/[0.07]"
+                      ></textarea>
                     </label>
                     <button
                       type="submit"
@@ -1072,9 +1296,6 @@
                         <i class="ph-light ph-arrow-up-right"></i>
                       </span>
                     </button>
-                    <p class="px-2 text-[11px] text-white/45">
-                      We respond inside one business day. No sales sequences.
-                    </p>
                   </div>
                 </form>
               </div>
